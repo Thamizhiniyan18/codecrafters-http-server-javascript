@@ -11,7 +11,16 @@ const server = net.createServer((socket) => {
   });
 
   socket.on("data", (data) => {
-    socket.write("HTTP/1.1 200 OK\r\n\r\n");
+    request = data.toString().split("\r\n");
+
+    path = request[0].split(' ')[1]
+
+    if (path == '/') {
+        socket.write("HTTP/1.1 200 OK\r\n\r\n");
+    }
+    else {
+        socket.write("HTTP/1.1 404 OK\r\n\r\n");
+    }
   });
 });
 
