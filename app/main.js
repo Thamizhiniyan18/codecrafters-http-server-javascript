@@ -13,18 +13,24 @@ const server = net.createServer((socket) => {
   socket.on("data", (data) => {
     request = data.toString().split("\r\n");
 
-    path = request[0].split(' ')[1]
+    path = request[0].split(" ")[1];
 
-    if (path == '/') {
-        socket.write("HTTP/1.1 200 OK\r\n\r\n");
-    }
-    else if (path.startsWith('/echo/')) {
-        str = path.split('/echo/')[1]
+    if (path == "/") {
+      socket.write("HTTP/1.1 200 OK\r\n\r\n");
+    } else if (path.startsWith("/echo/")) {
+      str = path.split("/echo/")[1];
 
-        socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${str.length}\r\n\r\n${str}`)
-    }
-    else {
-        socket.write("HTTP/1.1 404 OK\r\n\r\n");
+      socket.write(
+        `HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${str.length}\r\n\r\n${str}`
+      );
+    } else if (path.startsWith("/user-agent")) {
+      const userAgent = request[2].split(" ")[1]
+
+      socket.write(
+        `HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${userAgent.length}\r\n\r\n${userAgent}`
+      );
+    } else {
+      socket.write("HTTP/1.1 404 OK\r\n\r\n");
     }
   });
 });
