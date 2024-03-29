@@ -13,7 +13,7 @@ const server = net.createServer((socket) => {
 
   socket.on("data", (data) => {
     request = data.toString().split("\r\n");
-
+    method = request[0].split(" ")[0];
     path = request[0].split(" ")[1];
 
     if (path == "/") {
@@ -34,15 +34,27 @@ const server = net.createServer((socket) => {
       directory = process.argv[3];
       filename = path.split("/files/")[1];
 
-      fs.readFile(directory + filename, "utf8", (err, data) => {
-        if (err) {
-          socket.write("HTTP/1.1 404 OK\r\n\r\n");
-        }
+      if (method == "GET") {
+        fs.readFile(directory + filename, "utf8", (err, data) => {
+          if (err) {
+            socket.write("HTTP/1.1 404 OK\r\n\r\n");
+          }
 
-        socket.write(
-          `HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: ${data.length}\r\n\r\n${data}`
-        );
-      });
+          socket.write(
+            `HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: ${data.length}\r\n\r\n${data}`
+          );
+        });
+      } else if (method == "POST") {
+        const body = request[request.length - 1]
+
+        fs.writeFile(directory + filename, body, (err) => {
+          if (err) {
+            socket.write("HTTP/1.1 404 OK\r\n\r\n");
+          }
+
+          socket.write(`HTTP/1.1 201 OK\r\n\r\n`);
+        });
+      }
     } else {
       socket.write("HTTP/1.1 404 OK\r\n\r\n");
     }
